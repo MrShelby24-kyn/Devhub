@@ -29,3 +29,48 @@ exports.register = async (req, res) => {
     });
   }
 };
+const jwt = require("jsonwebtoken");
+
+exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  const sql = "SELECT * FROM users WHERE email = ?";
+
+  db.query(sql, [email], async (err, result) => {
+    if (err) {
+      return res.status(500).json({ erreur: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(401).json({
+        message: "Email ou mot de passe incorrect"
+      });
+    }
+
+    const user = result[0];
+
+    const passwordValide = await bcrypt.compare(password, user.password);
+
+    if (!passwordValide) {
+      return res.status(401).json({
+        message: "Email ou mot de passe incorrect"
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "24h"
+      }
+    );
+
+    res.json({
+      message: "Connexion réussie",
+      token
+    });
+  });
+};
