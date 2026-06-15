@@ -74,3 +74,9 @@ exports.login = (req, res) => {
     });
   });
 };
+exports.profile = (req, res) => {
+    res.json({
+        message: "Bienvenue sur ton profil",
+        utilisateur: req.user
+    });
+}
