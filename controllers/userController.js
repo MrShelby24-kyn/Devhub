@@ -80,3 +80,54 @@ exports.profile = (req, res) => {
         utilisateur: req.user
     });
 }
+exports.profile = (req, res) => {
+
+    const sql = "SELECT id, nom, prenom, email, bio, ville, pays, photo FROM users WHERE id = ?";
+
+    db.query(sql, [req.user.id], (err, result) => {
+
+        if (err) {
+            return res.status(500).json({
+                erreur: err.message
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: "Utilisateur introuvable"
+            });
+        }
+
+        res.json(result[0]);
+
+    });
+
+};
+exports.updateProfile = (req, res) => {
+
+    const { nom, prenom, bio, ville, pays } = req.body;
+
+    const sql = `
+    UPDATE users
+    SET nom = ?, prenom = ?, bio = ?, ville = ?, pays = ?
+    WHERE id = ?`;
+
+    db.query(
+        sql,
+        [nom, prenom, bio, ville, pays, req.user.id],
+        (err) => {
+
+            if (err) {
+                return res.status(500).json({
+                    erreur: err.message
+                });
+            }
+
+            res.json({
+                message: "Profil mis à jour avec succès"
+            });
+
+        }
+    );
+
+};
