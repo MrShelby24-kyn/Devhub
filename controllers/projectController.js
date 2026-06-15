@@ -101,3 +101,77 @@ exports.getProject = (req, res) => {
     });
 
 };
+exports.updateProject = (req, res) => {
+
+    const { titre, description, technologie, categorie } = req.body;
+
+    const sql = `
+    UPDATE projects
+    SET titre=?, description=?, technologie=?, categorie=?
+    WHERE id=? AND user_id=?
+    `;
+
+    db.query(
+        sql,
+        [
+            titre,
+            description,
+            technologie,
+            categorie,
+            req.params.id,
+            req.user.id
+        ],
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json({
+                    erreur: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(403).json({
+                    message: "Vous ne pouvez pas modifier ce projet."
+                });
+            }
+
+            res.json({
+                message: "Projet modifié avec succès"
+            });
+
+        }
+    );
+
+};
+exports.deleteProject = (req, res) => {
+
+    const sql = `
+    DELETE FROM projects
+    WHERE id=? AND user_id=?
+    `;
+
+    db.query(
+        sql,
+        [req.params.id, req.user.id],
+        (err, result) => {
+
+            if (err) {
+                return res.status(500).json({
+                    erreur: err.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(403).json({
+                    message: "Vous ne pouvez pas supprimer ce projet."
+                });
+            }
+
+            res.json({
+                message: "Projet supprimé avec succès"
+            });
+
+        }
+    );
+
+};
