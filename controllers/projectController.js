@@ -1,6 +1,9 @@
 const db = require("../config/db");
 
+
 exports.createProject = (req, res) => {
+
+    const image = req.file ? req.file.filename : null;
 
     const {
         titre,
@@ -11,8 +14,8 @@ exports.createProject = (req, res) => {
 
     const sql = `
     INSERT INTO projects
-    (titre, description, technologie, categorie, user_id)
-    VALUES (?, ?, ?, ?, ?)
+    (titre, description, technologie, categorie, user_id, image)
+    VALUES (?, ?, ?, ?, ?, ?)
     `;
 
     db.query(
@@ -22,7 +25,8 @@ exports.createProject = (req, res) => {
             description,
             technologie,
             categorie,
-            req.user.id
+            req.user.id,
+            image
         ],
         (err) => {
 
