@@ -44,25 +44,55 @@ exports.createProject = (req, res) => {
 };
 exports.getProjects = (req, res) => {
 
-    const sql = `
-    SELECT
-    projects.*,
-    users.nom,
-    users.prenom
-    FROM projects
-    JOIN users
-    ON users.id = projects.user_id
-    ORDER BY created_at DESC
+    const {
+        search,
+        categorie,
+        technologie,
+        page = 1
+    } = req.query;
+
+    const limit = 10;
+    const offset = (page - 1) * limit;
+
+    let sql = `
+        SELECT
+            projects.*,
+            users.nom,
+            users.prenom
+        FROM projects
+        JOIN users
+            ON users.id = projects.user_id
+        WHERE 1=1
     `;
 
-    db.query(sql, (err, result) => {
+    const values = [];
+
+    if (search) {
+        sql += " AND titre LIKE ?";
+        values.push(`%${search}%`);
+    }
+
+    if (categorie) {
+        sql += " AND categorie = ?";
+        values.push(categorie);
+    }
+
+    if (technologie) {
+        sql += " AND technologie = ?";
+        values.push(technologie);
+    }
+
+    sql += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+
+    values.push(limit);
+    values.push(offset);
+
+    db.query(sql, values, (err, result) => {
 
         if (err) {
-
             return res.status(500).json({
                 erreur: err.message
             });
-
         }
 
         res.json(result);
