@@ -15,6 +15,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/uploads", express.static("uploads"));
+app.use(express.static("public"));
 
 require("./config/db");
 
